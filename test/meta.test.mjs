@@ -63,3 +63,26 @@ test('paths are reported with forward slashes on every platform', () => {
   assert.ok(bin.includes('r.test(slash(p))'), '--exclude compares normalised paths');
   assert.ok(bin.includes('slash(relative('), 'findings carry normalised paths');
 });
+
+// A README that claims 88 tests while the suite runs 96 is a small lie, and a
+// reader who checks one number and finds it wrong stops trusting the rest -
+// including the benchmark table, which is the part that has to be believed.
+//
+// Counted statically on purpose: running the suite from inside the suite to
+// count it recurses forever, which is exactly what the first attempt did.
+test('the README test count matches the number of tests declared', () => {
+  let declared = 0;
+  for (const f of readdirSync(here).filter(f => f.endsWith('.test.mjs'))) {
+    const src = readFileSync(join(here, f), 'utf8');
+    declared += (src.match(/^test\(/gm) || []).length;
+  }
+  assert.ok(declared > 50, `counted ${declared}, which cannot be right`);
+  for (const [file, re] of [
+    ['README.md', /`npm test` runs (\d+) of them/],
+    ['README.ko.md', /`npm test` 가 (\d+)가지를 돌립니다/],
+  ]) {
+    const m = re.exec(readFileSync(join(root, file), 'utf8'));
+    assert.ok(m, `${file} states a test count`);
+    assert.equal(Number(m[1]), declared, `${file} says ${m[1]}, the suite declares ${declared}`);
+  }
+});

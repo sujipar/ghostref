@@ -243,7 +243,7 @@ for:
    off, and then its true findings are gone too. Every guard above is covered
    by a test that fails when the guard is removed.
 
-`npm test` runs 95 of them.
+`npm test` runs 97 of them.
 
 ## Licence
 
