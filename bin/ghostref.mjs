@@ -8,6 +8,15 @@ import { analyze, RULES, kindOf } from '../src/index.mjs';
 
 const VERSION = '0.1.0';
 
+/**
+ * Normalise a path to forward slashes.
+ *
+ * Every path that leaves this file - into a pattern match, into a finding, into
+ * --json - goes through here, so output is identical on all platforms and a
+ * pattern written once works everywhere.
+ */
+const slash = p => p.replace(/\\/g, '/');
+
 const SKIP_DIRS = new Set([
   'node_modules', '.git', '.hg', '.svn', 'dist', 'build', 'out', 'coverage',
   '.next', '.nuxt', '.output', '.cache', 'vendor', '.venv', 'venv', '__pycache__',
@@ -129,22 +138,26 @@ function main(argv) {
   // to match `test/x.js` - and an --exclude that quietly excludes nothing is
   // the worst possible outcome for a flag whose whole job is to shut something
   // up. `*` still spans separators.
-  const toRe = g => new RegExp(g.split('*').map(x =>
-    x.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*'));
-  const exRe = excludes.map(toRe);
+  //
+  // Both sides are normalised to forward slashes first. On Windows the walk
+  // yields `test\sample\style.css`, so a pattern written the way every README
+  // in the world writes it would match nothing at all - and say nothing about
+  // it. CI on four Windows runners is what surfaced that.
+  const exRe = excludes.map(g => new RegExp(slash(g).split('*').map(x =>
+    x.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*')));
   const excluded = [];
 
   const files = [];
   const unreadable = [];
   for (const p of list) {
-    if (exRe.some(r => r.test(p))) { excluded.push(p); continue; }
+    if (exRe.some(r => r.test(slash(p)))) { excluded.push(slash(p)); continue; }
     try {
       const text = readFileSync(p, 'utf8');
       // A NUL byte means this is not text; reading it as source invents findings.
-      if (text.includes('\u0000')) { unreadable.push([p, 'looks binary']); continue; }
-      files.push({ path: relative(process.cwd(), p) || p, text });
+      if (text.includes('\u0000')) { unreadable.push([slash(p), 'looks binary']); continue; }
+      files.push({ path: slash(relative(process.cwd(), p) || p), text });
     } catch (err) {
-      unreadable.push([p, err.code || String(err.message)]);
+      unreadable.push([slash(p), err.code || String(err.message)]);
     }
   }
 

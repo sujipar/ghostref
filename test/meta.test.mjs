@@ -52,3 +52,14 @@ test('the published file list covers everything the binary imports', () => {
     assert.ok(pkg.files.includes(top), `${top} is imported but not in package.json files`);
   }
 });
+
+// Windows gives the walk `test\\sample\\style.css`. Every --exclude pattern in
+// every README is written with forward slashes, so without normalising both
+// sides the flag matches nothing on Windows and reports no problem doing it.
+// Four Windows runners in CI are what caught this; it is cheap to keep caught.
+test('paths are reported with forward slashes on every platform', () => {
+  const bin = readFileSync(join(root, 'bin', 'ghostref.mjs'), 'utf8');
+  assert.ok(/const slash = /.test(bin), 'a normaliser exists');
+  assert.ok(bin.includes('r.test(slash(p))'), '--exclude compares normalised paths');
+  assert.ok(bin.includes('slash(relative('), 'findings carry normalised paths');
+});
