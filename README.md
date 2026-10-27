@@ -1,17 +1,20 @@
 # ghostref
 
 [![ci](https://github.com/sujipar/ghostref/actions/workflows/ci.yml/badge.svg)](https://github.com/sujipar/ghostref/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/ghostref.svg)](https://www.npmjs.com/package/ghostref)
 [![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](package.json)
+[![node >=18](https://img.shields.io/badge/node-%E2%89%A518-blue.svg)](package.json)
 
 Find references that silently point at nothing.
 
 ```
-npx ghostref .
+npx github:sujipar/ghostref .
 ```
 
-Zero dependencies. One file type it understands is enough; give it all three and
-it checks across them.
+Nothing to install, nothing to configure. Zero dependencies - it runs on a
+stock Node 18 or newer and reads nothing but the files you point it at.
+
+Give it your HTML, CSS and JS together: the checks are cross-file, which is the
+entire point.
 
 ---
 
@@ -59,7 +62,7 @@ pass, too noisy to gate a build on, so they are off until you ask with `--all`.
 ## Example
 
 ```
-$ npx ghostref test/sample
+$ npx github:sujipar/ghostref test/sample
 
 test/sample/index.html
     18  error  .card-titel in selector ".card-titel" matches nothing this project creates  missing-selector
@@ -136,7 +139,7 @@ findings with it.
 ## In CI
 
 ```yaml
-- run: npx ghostref . --exclude vendor
+- run: npx github:sujipar/ghostref . --exclude vendor
 ```
 
 Exit codes: `0` clean, `1` at least one error-level finding, `2` bad usage.

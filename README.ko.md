@@ -1,15 +1,16 @@
 # ghostref
 
 [![ci](https://github.com/sujipar/ghostref/actions/workflows/ci.yml/badge.svg)](https://github.com/sujipar/ghostref/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/ghostref.svg)](https://www.npmjs.com/package/ghostref)
+[![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](package.json)
 
 **조용히 아무것도 가리키지 않는 참조**를 찾습니다. ([English](README.md))
 
 ```
-npx ghostref .
+npx github:sujipar/ghostref .
 ```
 
-의존성 0개.
+깔 것도 설정할 것도 없습니다. 의존성 0개 — 아무 Node 18 이상에서 돌고,
+가리킨 파일 말고는 아무것도 읽지 않습니다.
 
 ---
 

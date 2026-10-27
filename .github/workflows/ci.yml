@@ -47,3 +47,40 @@ jobs:
             }
             console.log("sample ok:", got.join(", "));
           '
+
+  # The first line of the README is an instruction, not a description. If it
+  # stops working the README becomes a lie, and a stranger finds that out
+  # before we do.
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: pack, install into an empty project, and run it like a user
+        run: |
+          set -euo pipefail
+          npm pack
+          mkdir -p /tmp/consumer && cd /tmp/consumer
+          npm init -y > /dev/null
+          npm i "$GITHUB_WORKSPACE"/ghostref-*.tgz
+          mkdir -p app
+          {
+            echo '<div class="hero" id="top"></div>'
+            echo '<script>document.querySelector(".heor")</script>'
+          } > app/p.html
+          {
+            echo ':root{--brand:#09f}'
+            echo '.hero{color:var(--brnad)}'
+          } > app/s.css
+          ./node_modules/.bin/ghostref --version
+          set +e
+          out=$(./node_modules/.bin/ghostref app)
+          code=$?
+          set -e
+          printf '%s\n' "$out"
+          test "$code" = "1" || { echo "expected exit 1, got $code"; exit 1; }
+          printf '%s' "$out" | grep -q '\.hero' || { echo "selector suggestion missing"; exit 1; }
+          printf '%s' "$out" | grep -q 'var(--brand)' || { echo "var suggestion missing"; exit 1; }
+          echo "installed-and-ran ok"
