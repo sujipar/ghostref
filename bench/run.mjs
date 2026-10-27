@@ -68,7 +68,7 @@ console.log(pad('subject', 34) + lpad('files', 7) + lpad('lookups', 9) +
             lpad('found', 7) + lpad('unjudged', 10) + lpad('ms', 7));
 console.log('-'.repeat(74));
 
-let totalLookups = 0, totalFound = 0, missing = 0;
+let totalLookups = 0, totalFound = 0, totalFiles = 0, missing = 0;
 for (const [repo, target] of SUBJECTS) {
   if (!clone(repo)) { missing++; continue; }
   const full = join(REPOS, target);
@@ -78,12 +78,13 @@ for (const [repo, target] of SUBJECTS) {
   const f = m.stats.files;
   totalLookups += m.stats.lookups;
   totalFound += m.findings;
+  totalFiles += f.html + f.css + f.js;
   console.log(pad(target, 34) + lpad(f.html + f.css + f.js, 7) +
     lpad(m.stats.lookups, 9) + lpad(m.findings, 7) +
     lpad(m.stats.unresolvedLookups, 10) + lpad(m.ms.toFixed(0), 7));
 }
 console.log('-'.repeat(74));
-console.log(pad('total', 34) + lpad('', 7) + lpad(totalLookups, 9) + lpad(totalFound, 7));
+console.log(pad('total', 34) + lpad(totalFiles, 7) + lpad(totalLookups, 9) + lpad(totalFound, 7));
 if (missing) {
   // Say it out loud. A benchmark that silently measured less than it claims is
   // worse than no benchmark.

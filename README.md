@@ -201,7 +201,7 @@ Every figure below comes out of that script, against upstream `main`:
 | alpine/tests | 77 | 28 | 0 | 92 |
 | svelte/packages | 8,592 | 2,050 | 9 | 635 |
 
-4,424 lookups judged across 9,896 files. Most projects come back clean. The
+4,424 lookups judged across 9,796 files. Most projects come back clean. The
 findings that remain cluster in test fixtures that build DOM from interpolated
 strings, and in classes applied by something outside the repository — the cases
 `ghostref-ignore` exists for. Bootstrap's count is inflated by a shallow clone,
