@@ -15,4 +15,5 @@ First release.
   narrowed to one rule.
 - "Did you mean" suggestions using optimal string alignment, so a transposition
   costs one edit.
+- Honours `.gitignore` on top of the built-in skip list (`--no-gitignore` opts out).
 - Zero dependencies.

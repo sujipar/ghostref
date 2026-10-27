@@ -2,8 +2,8 @@
 // CLI. Walks the given paths, hands every readable file to analyze(), prints
 // findings, and exits non-zero when something is broken so CI can gate on it.
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { join, relative, dirname } from 'node:path';
 import { analyze, RULES, kindOf } from '../src/index.mjs';
 
 const VERSION = '0.1.0';
@@ -52,6 +52,7 @@ ${C.bold}Options${C.x}
   --no-rule <name>       disable one rule (repeatable)
   --no-suggest           do not print "did you mean" hints
   --exclude <glob>       skip paths containing this pattern; * spans anything
+  --no-gitignore         do not read .gitignore for extra exclusions
   --no-exit-code         always exit 0 (useful while adopting)
   --quiet                only print findings, no summary
   -h, --help             this text
@@ -71,6 +72,30 @@ ${C.bold}Why this exists${C.x}
   by a human noticing the page looks wrong. Each language's linter sees only
   its own files, so nobody checks across the gap. ghostref does.
 `;
+}
+
+/**
+ * Read .gitignore patterns from a directory, as plain substring/glob rules.
+ *
+ * Not a full gitignore implementation - no negation, no anchoring semantics.
+ * It covers the case that actually matters here: a repository that already
+ * says "do not look at dist/ or at the fixtures I cloned", so the user does
+ * not have to repeat that as --exclude on every run. Anything subtler is still
+ * expressible with --exclude.
+ */
+function gitignorePatterns(dir) {
+  const f = join(dir, '.gitignore');
+  if (!existsSync(f)) return [];
+  let text;
+  try { text = readFileSync(f, 'utf8'); } catch { return []; }
+  const out = [];
+  for (let line of text.split('\n')) {
+    line = line.trim();
+    if (!line || line.startsWith('#') || line.startsWith('!')) continue;
+    line = line.replace(/\/+$/, '').replace(/^\/+/, '');
+    if (line) out.push(line);
+  }
+  return out;
 }
 
 function walk(root, out, seen) {
@@ -96,7 +121,7 @@ function walk(root, out, seen) {
 function main(argv) {
   const paths = [];
   const rules = {};
-  let json = false, all = false, exitCode = true, quiet = false, suggest = true;
+  let json = false, all = false, exitCode = true, quiet = false, suggest = true, noGitignore = false;
   const excludes = [];
 
   for (let i = 0; i < argv.length; i++) {
@@ -108,6 +133,7 @@ function main(argv) {
     else if (a === '--no-exit-code') exitCode = false;
     else if (a === '--quiet') quiet = true;
     else if (a === '--no-suggest') suggest = false;
+    else if (a === '--no-gitignore') noGitignore = true;
     else if (a === '--exclude') {
       const pat = argv[++i];
       if (!pat) { console.error('ghostref: --exclude needs a pattern'); return 2; }
@@ -133,6 +159,16 @@ function main(argv) {
   const seen = new Set();
   for (const p of paths) walk(p, list, seen);
 
+  // A repository that already lists its build output and vendored copies in
+  // .gitignore should not have to list them again as --exclude.
+  const fromGitignore = [];
+  if (!noGitignore) {
+    const roots = new Set(paths.map(p => {
+      try { return statSync(p).isDirectory() ? p : dirname(p); } catch { return '.'; }
+    }));
+    for (const r of roots) for (const g of gitignorePatterns(r)) fromGitignore.push(g);
+  }
+
   // Match anywhere in the path, not anchored. Paths come out of the walk
   // relative to what the user typed, so an anchored `*/test/*` silently fails
   // to match `test/x.js` - and an --exclude that quietly excludes nothing is
@@ -143,7 +179,7 @@ function main(argv) {
   // yields `test\sample\style.css`, so a pattern written the way every README
   // in the world writes it would match nothing at all - and say nothing about
   // it. CI on four Windows runners is what surfaced that.
-  const exRe = excludes.map(g => new RegExp(slash(g).split('*').map(x =>
+  const exRe = [...excludes, ...fromGitignore].map(g => new RegExp(slash(g).split('*').map(x =>
     x.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('.*')));
   const excluded = [];
 
@@ -242,7 +278,7 @@ function render(result, unreadable, quiet, excluded = []) {
       out.push(`${C.y}skipped${C.x} ${s.checks.join(', ')} ${C.d}- ${s.why}${C.x}`);
     }
     if (excluded.length) {
-      out.push(`${C.d}excluded: ${excluded.length} file${excluded.length > 1 ? 's' : ''} by --exclude${C.x}`);
+      out.push(`${C.d}excluded: ${excluded.length} file${excluded.length > 1 ? 's' : ''} by --exclude or .gitignore${C.x}`);
     }
     if (stats.suppressed) {
       out.push(`${C.d}suppressed: ${stats.suppressed} finding${stats.suppressed > 1 ? 's' : ''} by ghostref-ignore comments${C.x}`);

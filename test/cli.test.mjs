@@ -3,6 +3,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { join, dirname } from 'node:path';
 
@@ -146,4 +148,24 @@ test('--exclude matches anywhere in the path, not just anchored', () => {
 test('--exclude with a leading glob also works', () => {
   const { stdout } = cli([SAMPLE, '--exclude', '*/style.css', '--no-exit-code']);
   assert.ok(stdout.includes('excluded: 1 file'), stdout);
+});
+
+// A repository already says which directories are not its source. Making the
+// user repeat that as --exclude on every run is friction that ends with the
+// tool being dropped from CI.
+test('.gitignore entries are honoured, and can be turned off', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'ghostref-gi-'));
+  mkdirSync(join(dir, 'src')); mkdirSync(join(dir, 'generated'));
+  writeFileSync(join(dir, '.gitignore'), 'generated/\n# a comment\n\n');
+  writeFileSync(join(dir, 'src', 'a.html'),
+    '<div class="ok"></div><script>document.querySelector(".ghost-src")</script>');
+  writeFileSync(join(dir, 'generated', 'b.html'),
+    '<div class="ok2"></div><script>document.querySelector(".ghost-gen")</script>');
+
+  const on = cli([dir, '--no-exit-code']).stdout;
+  assert.ok(on.includes('.ghost-src'), 'source is still checked');
+  assert.ok(!on.includes('.ghost-gen'), 'ignored directory is skipped');
+
+  const off = cli([dir, '--no-gitignore', '--no-exit-code']).stdout;
+  assert.ok(off.includes('.ghost-gen'), '--no-gitignore puts it back');
 });

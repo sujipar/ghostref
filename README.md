@@ -154,6 +154,7 @@ gives you `{ findings, stats, skippedChecks }` to feed a reporter.
 --rule <name>          enable one rule (repeatable)
 --no-rule <name>       disable one rule (repeatable)
 --exclude <glob>       skip paths containing this pattern; * spans anything
+--no-gitignore         do not read .gitignore for extra exclusions
 --no-suggest           do not print "did you mean" hints
 --no-exit-code         always exit 0
 --quiet                only print findings, no summary
@@ -161,8 +162,11 @@ gives you `{ findings, stats, skippedChecks }` to feed a reporter.
 
 Reads `.html .htm .xhtml .vue .svelte`, `.css .scss .sass .less .pcss`,
 `.js .mjs .cjs .jsx .ts .tsx .mts .cts`, and the `<style>` / `<script>` blocks
-inside HTML. Skips `node_modules`, `dist`, `build`, `coverage`, `vendor` and
-dotfolders.
+inside HTML. Skips `node_modules`, `dist`, `build`, `coverage`, `vendor` and dotfolders,
+plus whatever your `.gitignore` lists — a repository already says which
+directories are not its source, and making you repeat that as `--exclude` on
+every run is the kind of friction that ends with a tool being dropped from CI.
+`--no-gitignore` turns that off.
 
 ## Does it actually find anything?
 
@@ -243,7 +247,7 @@ for:
    off, and then its true findings are gone too. Every guard above is covered
    by a test that fails when the guard is removed.
 
-`npm test` runs 97 of them.
+`npm test` runs 98 of them.
 
 ## Licence
 
