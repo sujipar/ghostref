@@ -1,5 +1,8 @@
 # ghostref
 
+[![ci](https://github.com/sujipar/ghostref/actions/workflows/ci.yml/badge.svg)](https://github.com/sujipar/ghostref/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/ghostref.svg)](https://www.npmjs.com/package/ghostref)
+
 **조용히 아무것도 가리키지 않는 참조**를 찾습니다. ([English](README.md))
 
 ```

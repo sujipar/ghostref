@@ -1,5 +1,9 @@
 # ghostref
 
+[![ci](https://github.com/sujipar/ghostref/actions/workflows/ci.yml/badge.svg)](https://github.com/sujipar/ghostref/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/ghostref.svg)](https://www.npmjs.com/package/ghostref)
+[![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg)](package.json)
+
 Find references that silently point at nothing.
 
 ```
