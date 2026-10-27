@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ghostref sample</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <article class="card">
+    <h2 class="card-title">Hello</h2>
+    <span class="badge" id="count">0</span>
+  </article>
+
+  <script>
+    // .card-titel is a typo for .card-title. querySelector returns null, the
+    // next line throws nothing it can be blamed for, and the page just looks
+    // slightly wrong. No linter sees it: the name lives in another file.
+    document.querySelector('.card-titel')?.replaceChildren('Hi');
+
+    // The element is id="count", not "counter".
+    document.getElementById('counter');
+
+    // Both of these are correct and must stay quiet.
+    document.querySelector('.card');
+    document.getElementById('count');
+
+    // Created at runtime, so .note really does exist.
+    document.body.insertAdjacentHTML('beforeend', '<p class="note">ok</p>');
+    document.querySelector('.note');
+  </script>
+</body>
+</html>

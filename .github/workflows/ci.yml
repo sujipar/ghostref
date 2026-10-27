@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [18, 20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --test "test/*.test.mjs"
+
+  dogfood:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # test/sample carries deliberate bugs, so it is excluded here and
+      # asserted on separately by the test suite.
+      - name: ghostref on itself
+        run: node bin/ghostref.mjs . --exclude test/sample --exclude bench/repos
+      - name: the sample must still report exactly its three planted bugs
+        run: |
+          set -o pipefail
+          node bin/ghostref.mjs test/sample --json --no-exit-code > out.json
+          node -e '
+            const j = JSON.parse(require("node:fs").readFileSync("out.json", "utf8"));
+            const want = ["missing-css-var", "missing-id", "missing-selector"];
+            const got = j.findings.map(f => f.rule).sort();
+            if (JSON.stringify(got) !== JSON.stringify(want)) {
+              console.error("expected", want, "got", got);
+              process.exit(1);
+            }
+            console.log("sample ok:", got.join(", "));
+          '

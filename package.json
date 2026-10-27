@@ -1,0 +1,52 @@
+{
+  "name": "ghostref",
+  "version": "0.1.0",
+  "description": "Find references that silently point at nothing — querySelector calls, getElementById lookups and var(--custom-props) with no matching target across your HTML, CSS and JS. Zero dependencies.",
+  "keywords": [
+    "lint",
+    "linter",
+    "static-analysis",
+    "queryselector",
+    "selector",
+    "css-variables",
+    "custom-properties",
+    "dead-code",
+    "html",
+    "css",
+    "cross-file",
+    "dom",
+    "ci",
+    "zero-dependencies"
+  ],
+  "homepage": "https://github.com/sujipar/ghostref#readme",
+  "bugs": "https://github.com/sujipar/ghostref/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sujipar/ghostref.git"
+  },
+  "license": "MIT",
+  "author": "sujipar",
+  "type": "module",
+  "bin": {
+    "ghostref": "bin/ghostref.mjs"
+  },
+  "main": "src/index.mjs",
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "README.ko.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\"",
+    "lint:self": "node bin/ghostref.mjs test/fixtures --no-exit-code",
+    "selfcheck": "node bin/ghostref.mjs test/sample --all --no-exit-code"
+  }
+}

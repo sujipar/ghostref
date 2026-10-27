@@ -1,0 +1,19 @@
+:root {
+  --line: #dcdcdc;
+  --ink: #1c1d21;
+}
+
+.card {
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+.badge {
+  /* --lien is a typo for --line. CSS drops the whole declaration in silence,
+     so the border simply never appears and no tool says a word. */
+  border: 1px solid var(--lien);
+}
