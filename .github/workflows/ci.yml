@@ -18,7 +18,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-      - run: node --test "test/*.test.mjs"
+      # Node 18 and 20 do not expand globs for --test, so the directory form
+      # is the only spelling that works on every supported version.
+      - run: npm test
 
   dogfood:
     runs-on: ubuntu-latest

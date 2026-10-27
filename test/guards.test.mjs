@@ -3,7 +3,7 @@
 // so these matter as much as the rules themselves.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { run, rules } from './helpers.mjs';
+import { run, rules } from '../tools/testing.mjs';
 
 test('with no markup source, selector checks are skipped and said to be skipped', () => {
   const r = run({

@@ -45,7 +45,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node --test \"test/*.test.mjs\"",
+    "test": "node --test test/",
     "lint:self": "node bin/ghostref.mjs test/fixtures --no-exit-code",
     "selfcheck": "node bin/ghostref.mjs test/sample --all --no-exit-code"
   }

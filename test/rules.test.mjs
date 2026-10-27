@@ -4,7 +4,7 @@
 // try - so the honest move is to say so here rather than weaken the rule.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { run, rules, mentions } from './helpers.mjs';
+import { run, rules, mentions } from '../tools/testing.mjs';
 
 const CSS = { 'app.css': ':root{--line:#ddd}\n.box{color:red}\n#main{display:block}' };
 const HTML = { 'app.html': '<div class="box" id="main"></div>' };
