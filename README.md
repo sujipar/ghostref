@@ -195,17 +195,18 @@ Every figure below comes out of that script, against upstream `main`:
 
 | subject | files | lookups judged | findings | ms |
 |---|---|---|---|---|
-| todomvc/examples/react | 14 | 1 | 0 | 64 |
-| htmx/www | 143 | 104 | 1 | 120 |
-| htmx/test | 125 | 47 | 1 | 110 |
-| jquery/test | 143 | 168 | 0 | 143 |
-| bootstrap | 305 | 1,966 | 54 | 181 |
-| bootstrap/site | 90 | 60 | 0 | 81 |
-| pico | 295 | 0 | 0 | 587 |
-| alpine/tests | 77 | 28 | 0 | 92 |
-| svelte/packages | 8,592 | 2,050 | 9 | 635 |
+| todomvc/examples/javascript-es6 | 12 | 0 | 0 | 67 |
+| todomvc/examples/react | 14 | 1 | 0 | 66 |
+| htmx/www | 143 | 104 | 1 | 131 |
+| htmx/test | 125 | 47 | 1 | 112 |
+| jquery/test | 143 | 168 | 0 | 142 |
+| bootstrap | 305 | 1,969 | 55 | 228 |
+| bootstrap/site | 90 | 61 | 0 | 77 |
+| pico | 283 | 0 | 0 | 617 |
+| alpine/tests | 77 | 28 | 0 | 98 |
+| svelte/packages | 8,592 | 2,050 | 9 | 624 |
 
-4,424 lookups judged across 9,796 files. Most projects come back clean. The
+4,428 lookups judged across 9,784 files. Most projects come back clean. The
 findings that remain cluster in test fixtures that build DOM from interpolated
 strings, and in classes applied by something outside the repository — the cases
 `ghostref-ignore` exists for. Bootstrap's count is inflated by a shallow clone,
@@ -247,7 +248,7 @@ for:
    off, and then its true findings are gone too. Every guard above is covered
    by a test that fails when the guard is removed.
 
-`npm test` runs 98 of them.
+`npm test` runs 101 of them.
 
 ## Licence
 

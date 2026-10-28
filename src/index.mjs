@@ -135,7 +135,15 @@ function distance(a, b, cap = 3) {
  * teaches the reader to distrust the hints that are good.
  */
 function didYouMean(name, pool) {
-  if (name.replace(/^--/, '').length < 3) return null;
+  // Minimum length before a suggestion is worth making. Latin names need three
+  // characters: every one- or two-letter name is a single edit from every other
+  // one, so a hint there is noise. CJK is denser - `--바닥` and `--바탕` are two
+  // characters, one edit apart, and mean completely different things, which is
+  // exactly the case worth catching. Judging those by the Latin bar silently
+  // dropped a real suggestion on a real bug.
+  const bare = name.replace(/^--/, '');
+  const dense = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]/.test(bare);
+  if (bare.length < (dense ? 2 : 3)) return null;
   const cap = name.length <= 5 ? 1 : name.length <= 9 ? 2 : 3;
   let best = null, bestD = cap + 1;
   for (const cand of pool) {

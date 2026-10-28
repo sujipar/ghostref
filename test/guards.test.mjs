@@ -298,3 +298,35 @@ test('querySelector is still judged, so the distinction has teeth', () => {
   });
   assert.deepEqual(rules(r), ['missing-selector']);
 });
+
+// A Latin two-letter name carries almost no information, so `.a` -> `.b` is
+// noise. Two CJK characters carry a great deal: `--바닥` (floor) and `--바탕`
+// (background) differ by one edit and mean different things. Holding both to
+// the same bar threw away a correct suggestion on a real bug found in a real
+// codebase.
+test('CJK names get suggestions at two characters', () => {
+  const r = run({
+    'app.html': '<div class="x"></div>',
+    'app.css': ':root{--바탕:#fff}\n.x{background:var(--바닥)}',
+  });
+  assert.deepEqual(rules(r), ['missing-css-var']);
+  assert.equal(r.findings[0].suggestion, 'var(--바탕)');
+});
+
+test('Latin names still need three characters', () => {
+  const r = run({
+    'app.html': '<div class="ab"></div>',
+    'app.css': '.ab{color:red}',
+    'a.js': "document.querySelector('.ac')",
+  });
+  assert.equal(r.findings[0].suggestion, undefined);
+});
+
+test('a single CJK character still gets no suggestion', () => {
+  const r = run({
+    'app.html': '<div class="가"></div>',
+    'app.css': '.가{color:red}',
+    'a.js': "document.querySelector('.나')",
+  });
+  assert.equal(r.findings[0].suggestion, undefined);
+});
